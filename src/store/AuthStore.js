@@ -20,31 +20,38 @@ class AuthStore {
   }
 
   // Actions
-  signUp = async params => {
-    const sessionPromise = this.store.api.user.signup(params);
+  registerNGO = async params => {
+    const sessionPromise = this.store.api.new_ngo.registerNGO(params);
     this.sessionStatus = fromPromise(sessionPromise);
     const res = await sessionPromise;
 
     // Do stuff
   };
 
+  registerVolunteer = async params => {
+    const sessionPromise = this.store.api.new_volunteer.registerVolunteer(
+      params
+    );
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+
+    // Do stuff
+  };
   login = async params => {
     const sessionPromise = this.store.api.user.login(params);
     this.sessionStatus = fromPromise(sessionPromise);
     const res = await sessionPromise;
-    this.handleAuth(res.data);
-  };
-
-  handleAuth = data => {
-    this.setToken(data.token);
+    this.setToken(res.data);
   };
 
   setToken = token => {
+    localStorage.setItem('token', token);
     this.token.set(token, { expires: 7 });
   };
 
   reset = () => {
-    this.setToken(null);
+    localStorage.removeItem('token');
+    this.token.remove();
     this.sessionStatus = null;
   };
 }

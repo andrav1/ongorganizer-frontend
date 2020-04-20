@@ -1,23 +1,28 @@
 import React, { Component } from 'react';
 import { Navbar as NB, Nav } from 'react-bootstrap';
-
+import { withRouter } from 'react-router-dom';
 import { withStore } from '../helpers';
 
 class Navbar extends Component {
+  async handleLogout() {
+    const { store } = this.props;
+    await store.authStore.reset();
+    return this.props.history.push('/');
+  }
   render() {
     const { store } = this.props;
 
     return (
       <NB bg="dark" variant="dark">
-        <NB.Brand href="/">LP Security</NB.Brand>
+        <NB.Brand href="/">NGO ORGANIZER</NB.Brand>
         {!store.authStore.isLoggedIn ? (
-          <Nav className="mr-auto">
+          <Nav className="mr-auto" inline>
             <Nav.Link href="/login">Login</Nav.Link>
-            <Nav.Link href="/register">Register</Nav.Link>
           </Nav>
         ) : (
-          <Nav className="mr-auto" inline>
-            <Nav.Link href="/">Home</Nav.Link>
+          <Nav className="mr-auto">
+            <Nav.Link onClick={() => this.handleLogout()}>Logout</Nav.Link>
+            <Nav.Link href="/dashboard">Dashboard</Nav.Link>
           </Nav>
         )}
       </NB>
@@ -25,4 +30,4 @@ class Navbar extends Component {
   }
 }
 
-export default withStore(Navbar);
+export default withRouter(withStore(Navbar));

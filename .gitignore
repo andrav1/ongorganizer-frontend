@@ -10,7 +10,6 @@
 /build
 
 # styles
-src/**/*.css
 !src/app/styles/global.css
 
 # misc

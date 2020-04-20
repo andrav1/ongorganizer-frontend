@@ -7,7 +7,8 @@ import createStore from './store';
 
 import Screen from './components/routes/Screen';
 import Login from './components/Login';
-import Register from './components/Register';
+import RegisterNGO from './components/RegisterNGO';
+import RegisterVolunteer from './components/RegisterVolunteer';
 import Navbar from './components/Navbar';
 
 const store = createStore(config);
@@ -22,7 +23,8 @@ class App extends Component {
             <Switch>
               <Route path="/" component={Screen} exact />
               <Route path="/login" component={Login} />
-              <Route path="/register" component={Register} />
+              <Route path="/registervolunteer" component={RegisterVolunteer} />
+              <Route path="/registerngo" component={RegisterNGO} />
             </Switch>
           </div>
         </BrowserRouter>
