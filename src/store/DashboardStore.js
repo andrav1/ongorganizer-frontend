@@ -1,11 +1,11 @@
 import { decorate } from 'mobx';
 
-class UiStore {
+class DashboardStore {
   constructor(store) {
     this.store = store;
   }
 }
 
-decorate(UiStore, {});
+decorate(DashboardStore, {});
 
-export default UiStore;
+export default DashboardStore;

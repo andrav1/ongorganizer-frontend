@@ -10,7 +10,8 @@ import Login from './components/Login';
 import RegisterNGO from './components/RegisterNGO';
 import RegisterVolunteer from './components/RegisterVolunteer';
 import Navbar from './components/Navbar';
-
+import ProtectedRoute from './components/ProtectedRoute';
+import Dashboard from './components/Dashboard';
 const store = createStore(config);
 
 class App extends Component {
@@ -25,6 +26,7 @@ class App extends Component {
               <Route path="/login" component={Login} />
               <Route path="/registervolunteer" component={RegisterVolunteer} />
               <Route path="/registerngo" component={RegisterNGO} />
+              <ProtectedRoute path="/dashboard" component={Dashboard} />
             </Switch>
           </div>
         </BrowserRouter>
