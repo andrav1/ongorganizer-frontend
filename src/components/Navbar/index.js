@@ -23,6 +23,12 @@ class Navbar extends Component {
           <Nav className="mr-auto">
             <Nav.Link onClick={() => this.handleLogout()}>Logout</Nav.Link>
             <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+            {localStorage.getItem('role') === 'volunteer' ? (
+              <Nav.Link href="/volunteer_profile">Edit Profile</Nav.Link>
+            ) : (
+              <Nav.Link href="/ngo_profile">Edit Profile</Nav.Link>
+            )}
+            <Nav.Link href="/project">Projects</Nav.Link>
           </Nav>
         )}
       </NB>

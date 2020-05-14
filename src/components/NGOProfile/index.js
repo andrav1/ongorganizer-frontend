@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import './styles.css';
@@ -7,7 +7,6 @@ import { withStore } from '../helpers';
 
 class Register extends Component {
   state = {
-    username: '',
     name: '',
     email: '',
     password: '',
@@ -16,9 +15,24 @@ class Register extends Component {
     legal_person: '',
     website: '',
     summary: '',
+    new_password: '',
+    areYouSure: false,
     error: {},
   };
+  async componentDidMount() {
+    const { store } = this.props;
+    const profile_info = await store.authStore.getNGOProfile();
 
+    this.setState({
+      name: profile_info.name,
+      email: profile_info.user.email,
+      address: profile_info.address,
+      activity_domain: profile_info.activity_domain,
+      summary: profile_info.summary,
+      legal_person: profile_info.legal_person,
+      website: profile_info.website,
+    });
+  }
   handleChange(event) {
     const {
       target: { value, name },
@@ -34,8 +48,9 @@ class Register extends Component {
       event.preventDefault();
       const { store } = this.props;
 
-      await store.authStore.registerNGO(this.state);
-      return this.props.history.push('/login');
+      await store.authStore.updateNGOProfile(this.state);
+      window.location.reload();
+      return this.props.history.push('/ngo_profile');
     } catch (error) {
       document.getElementById('ngo-register-form').reset();
       this.setState({ error: error.response.data });
@@ -44,6 +59,11 @@ class Register extends Component {
       setTimeout(() => this.setState({ error: {} }), 3000);
     }
   }
+  async deleteProfile() {
+    const { store } = this.props;
+    await store.authStore.deleteNgoProfile();
+    return this.props.history.push('/');
+  }
 
   render() {
     const {
@@ -51,18 +71,46 @@ class Register extends Component {
       name,
       password,
       address,
-      username,
       activity_domain,
       legal_person,
       website,
       summary,
+      new_password,
+      areYouSure,
       error,
     } = this.state;
 
     return (
       <div className="auth-wrapper">
+        <Modal
+          show={areYouSure}
+          onHide={() => this.setState({ areYouSure: false })}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Are you sure?</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Hey, you're about to delete your profile. Are you sure?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="danger" onClick={() => this.deleteProfile()}>
+              Yes
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => this.setState({ areYouSure: false })}
+            >
+              No
+            </Button>
+          </Modal.Footer>
+        </Modal>
         {error.non_field_errors && (
           <Alert variant="danger">{error.non_field_errors[0]}</Alert>
+        )}
+        {error.password && (
+          <Alert variant="danger">
+            Password is not correct. Edit unsuccessful!
+          </Alert>
         )}
         {error.username && (
           <Alert variant="danger">Username already exists</Alert>
@@ -93,6 +141,16 @@ class Register extends Component {
                 onChange={event => this.handleChange(event)}
                 required
               />
+            </Form.Group>
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>New Password (if necessary)</Form.Label>
+              <Form.Control
+                type="password"
+                value={new_password}
+                placeholder="NEW Password"
+                name="new_password"
+                onChange={event => this.handleChange(event)}
+              />{' '}
             </Form.Group>
             <Form.Group controlId="exampleForm.ControlInput1">
               <Form.Label>Name</Form.Label>
@@ -150,17 +208,6 @@ class Register extends Component {
               />
               {error.website && <label class="error">{error.website}</label>}
             </Form.Group>
-            <Form.Group controlId="exampleForm.ControlInput1">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                value={username}
-                name="username"
-                placeholder="username"
-                onChange={event => this.handleChange(event)}
-                required
-              />
-            </Form.Group>
             {error.username && <label class="error">{error.username}</label>}
             <Form.Group controlId="exampleForm.ControlSelect1">
               <Form.Label>Activity Domain</Form.Label>
@@ -182,21 +229,21 @@ class Register extends Component {
                 <option value="7">Charity</option>
               </Form.Control>
             </Form.Group>
-            <Form.Check
-              type="switch"
-              id="custom-switch"
-              label="I agree that all of my data will be stored with the possibility to be displayed for the ngo I'm part of. I can request to delete my profile at any point. No third party will have access to my data."
-              value="True"
-              name="gdpr"
-              onChange={event => this.handleChange(event)}
-              required
-            />
-
             <Button variant="primary" type="submit">
-              Register
+              Save changes
+            </Button>{' '}
+            <Button
+              variant="primary"
+              onClick={() => this.setState({ areYouSure: true })}
+            >
+              Delete profile
             </Button>
-            <p className="forgot-password text-right">
-              Already registered? <Link to="login">Sign in.</Link>
+            <p>
+              {' '}
+              * By deleting your profile you give up any right to receive
+              informations from this platform regarding your volunteering. All
+              of your data will be deleted form our database and we will not use
+              it further in any way
             </p>
           </Form>
         </div>

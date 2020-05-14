@@ -12,6 +12,9 @@ import RegisterVolunteer from './components/RegisterVolunteer';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './components/Dashboard';
+import VoluteerProfile from './components/VolunteerProfile';
+import NGOProfile from './components/NGOProfile';
+import Project from './components/Project';
 const store = createStore(config);
 
 class App extends Component {
@@ -27,6 +30,12 @@ class App extends Component {
               <Route path="/registervolunteer" component={RegisterVolunteer} />
               <Route path="/registerngo" component={RegisterNGO} />
               <ProtectedRoute path="/dashboard" component={Dashboard} />
+              <ProtectedRoute
+                path="/volunteer_profile"
+                component={VoluteerProfile}
+              />
+              <ProtectedRoute path="/ngo_profile" component={NGOProfile} />
+              <ProtectedRoute path="/project" component={Project} />
             </Switch>
           </div>
         </BrowserRouter>

@@ -1,26 +1,41 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Form, Button, Alert, Col, Row } from 'react-bootstrap';
+import { Form, Button, Alert, Col, Row, Image, Modal } from 'react-bootstrap';
 
 import './styles.css';
 import { withStore } from '../helpers';
 
 class Register extends Component {
   state = {
-    username: '',
     name: '',
     email: '',
-    password: '',
     address: '',
-    main_interest: '1',
+    main_interest: '',
     summary: '',
-    birth_date: '',
+    password: '',
     gender: '',
     years_of_experience: '',
     profile_picture: '',
+    new_password: '',
+    actual_picture: '',
+    areYouSure: false,
     error: {},
   };
+  async componentDidMount() {
+    const { store } = this.props;
+    const profile_info = await store.authStore.getVolunteerProfile();
 
+    this.setState({
+      name: profile_info.name,
+      email: profile_info.user.email,
+      address: profile_info.address,
+      main_interest: profile_info.main_interest,
+      summary: profile_info.summary,
+      gender: profile_info.gender,
+      years_of_experience: profile_info.years_of_experience,
+      actual_picture: profile_info.profile_picture,
+    });
+  }
   handleChange(event) {
     const {
       target: { value, name, files, type },
@@ -43,10 +58,12 @@ class Register extends Component {
       event.preventDefault();
       const { store } = this.props;
 
-      await store.authStore.registerVolunteer(this.state);
-      return this.props.history.push('/login');
+      await store.authStore.updateVolunteerProfile(this.state);
+      window.location.reload();
+      return this.props.history.push('/volunteer_profile');
     } catch (error) {
       document.getElementById('volunteer-register-form').reset();
+      console.log(error);
       this.setState({
         error: error.response.data,
         profile_picture: '',
@@ -56,30 +73,60 @@ class Register extends Component {
       setTimeout(() => this.setState({ error: {} }), 3000);
     }
   }
+  async deleteProfile() {
+    const { store } = this.props;
+    await store.authStore.deleteVolunteerProfile();
+    return this.props.history.push('/');
+  }
 
   render() {
     const {
       email,
       name,
-      password,
       address,
-      username,
-      birth_date,
+      password,
       main_interest,
       summary,
       gender,
       years_of_experience,
       profile_picture,
+      new_password,
+      actual_picture,
+      areYouSure,
       error,
     } = this.state;
 
     return (
       <div className="auth-wrapper">
+        <Modal
+          show={areYouSure}
+          onHide={() => this.setState({ areYouSure: false })}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Are you sure?</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Hey, you're about to delete your profile. Are you sure?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="danger" onClick={() => this.deleteProfile()}>
+              Yes
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => this.setState({ areYouSure: false })}
+            >
+              No
+            </Button>
+          </Modal.Footer>
+        </Modal>
         {error.non_field_errors && (
           <Alert variant="danger">{error.non_field_errors[0]}</Alert>
         )}
-        {error.username && (
-          <Alert variant="danger">Username already exists</Alert>
+        {error.password && (
+          <Alert variant="danger">
+            Password is not correct. Edit unsuccessful!
+          </Alert>
         )}
         <div className="auth-inner">
           <Form
@@ -106,6 +153,16 @@ class Register extends Component {
                 name="password"
                 onChange={event => this.handleChange(event)}
                 required
+              />
+            </Form.Group>
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>New Password (if necessary)</Form.Label>
+              <Form.Control
+                type="password"
+                value={new_password}
+                placeholder="NEW Password"
+                name="new_password"
+                onChange={event => this.handleChange(event)}
               />
             </Form.Group>
             <Form.Group controlId="exampleForm.ControlInput1">
@@ -152,29 +209,6 @@ class Register extends Component {
                 required
               />
             </Form.Group>
-            <Form.Group controlId="exampleForm.ControlInput1">
-              <Form.Label>Birth Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={birth_date}
-                name="birth_date"
-                placeholder="zz/ll/aaaa"
-                onChange={event => this.handleChange(event)}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group controlId="exampleForm.ControlInput1">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                value={username}
-                placeholder="username"
-                name="username"
-                onChange={event => this.handleChange(event)}
-                required
-              />
-            </Form.Group>
             <fieldset>
               <Form.Group as={Row}>
                 <Form.Label as="legend" column sm={2}>
@@ -188,6 +222,7 @@ class Register extends Component {
                     name="gender"
                     onChange={event => this.handleChange(event)}
                     id="formHorizontalRadios1"
+                    checked={gender === 'F'}
                   />
                   <Form.Check
                     type="radio"
@@ -196,11 +231,15 @@ class Register extends Component {
                     name="gender"
                     onChange={event => this.handleChange(event)}
                     id="formHorizontalRadios2"
+                    checked={gender === 'M'}
                   />{' '}
                 </Col>
               </Form.Group>
             </fieldset>
             <Form.Group controlId="exampleForm.ControlInputFile">
+              <Col xs={6} md={4}>
+                <Image src={actual_picture} fluid />{' '}
+              </Col>
               <Form.Label>Profile Picture</Form.Label>
               <Form.Control
                 type="file"
@@ -227,20 +266,21 @@ class Register extends Component {
                 <option value="7">Charity</option>
               </Form.Control>
             </Form.Group>
-            <Form.Check
-              type="switch"
-              id="custom-switch"
-              label="I agree that all of my data will be stored with the possibility to be displayed to volunteers searching for ngos. I can request to delete my profile at any point. No third party will have access to my data."
-              value="True"
-              name="gdpr"
-              onChange={event => this.handleChange(event)}
-              required
-            />
             <Button variant="primary" type="submit">
-              Register
+              Save changes
+            </Button>{' '}
+            <Button
+              variant="primary"
+              onClick={() => this.setState({ areYouSure: true })}
+            >
+              Delete profile
             </Button>
-            <p className="forgot-password text-right">
-              Already registered? <Link to="login">Sign in.</Link>
+            <p>
+              {' '}
+              * By deleting your profile you give up any right to receive
+              informations from this platform regarding your volunteering. All
+              of your data will be deleted form our database and we will not use
+              it further in any way
             </p>
           </Form>
         </div>
