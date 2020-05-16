@@ -35,6 +35,12 @@ class ProjectStore {
   reset = () => {
     this.entities = [];
   };
+  deleteProject = async id => {
+    const sessionPromise = this.store.api.project.deleteProject(id);
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    this.reset();
+  };
 }
 
 decorate(ProjectStore, {

@@ -154,6 +154,17 @@ export default () => {
         headers: { Authorization: `Token ${localStorage.token}` },
       });
     },
+    giveUpNgo(params) {
+      return client.request({
+        method: 'put',
+        url: 'api/profile_volunteer/',
+        headers: { Authorization: `Token ${localStorage.token}` },
+        data: {
+          password: params.password,
+          give_up: true,
+        },
+      });
+    },
     updateProfile(params) {
       let data = new FormData(); // creates a new FormData object
       data.append('new_password', params.new_password);
@@ -185,6 +196,16 @@ export default () => {
         data: {
           id: params.id,
         },
+      });
+    },
+    deleteProject(params) {
+      return client.request({
+        method: 'delete',
+        url: `api/project/${params.id}`,
+        headers: { Authorization: `Token ${localStorage.token}` },
+        // data:{
+        //   id:params.id
+        // }
       });
     },
   };

@@ -233,7 +233,7 @@ class Register extends Component {
               Save changes
             </Button>{' '}
             <Button
-              variant="primary"
+              variant="danger"
               onClick={() => this.setState({ areYouSure: true })}
             >
               Delete profile

@@ -47,3 +47,12 @@
 .forgot-password a {
   color: #167bff;
 }
+.filter {
+  margin:15px;
+  width: 150px;
+}
+.filter-div {
+  margin: auto;
+  width: 60%;
+  border: 3px solid rgb(157, 160, 206);
+  padding: 10px;}

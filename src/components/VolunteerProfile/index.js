@@ -18,6 +18,7 @@ class Register extends Component {
     profile_picture: '',
     new_password: '',
     actual_picture: '',
+    ngo: '',
     areYouSure: false,
     error: {},
   };
@@ -34,6 +35,7 @@ class Register extends Component {
       gender: profile_info.gender,
       years_of_experience: profile_info.years_of_experience,
       actual_picture: profile_info.profile_picture,
+      ngo: profile_info.ong ? profile_info.ong.name : '',
     });
   }
   handleChange(event) {
@@ -75,10 +77,26 @@ class Register extends Component {
   }
   async deleteProfile() {
     const { store } = this.props;
+
     await store.authStore.deleteVolunteerProfile();
     return this.props.history.push('/');
   }
+  async giveUpNgo() {
+    const { store } = this.props;
+    try {
+      await store.authStore.giveUpNgo({ password: this.state.password });
+      window.location.reload();
+      return this.props.history.push('/volunteer_profile');
+    } catch (error) {
+      this.setState({
+        error: error.response.data,
+        profile_picture: '',
+      });
+      window.scrollTo(0, 0);
 
+      setTimeout(() => this.setState({ error: {} }), 3000);
+    }
+  }
   render() {
     const {
       email,
@@ -91,6 +109,7 @@ class Register extends Component {
       years_of_experience,
       profile_picture,
       new_password,
+      ngo,
       actual_picture,
       areYouSure,
       error,
@@ -266,15 +285,36 @@ class Register extends Component {
                 <option value="7">Charity</option>
               </Form.Control>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Form.Group controlId="ngo">
+              <Form.Label>NGO</Form.Label>
+              <Form.Control
+                type="text"
+                value={ngo}
+                name="ngo"
+                placeholder=""
+                disabled
+              />
+            </Form.Group>
+            <Button className="button" variant="primary" type="submit">
               Save changes
             </Button>{' '}
             <Button
-              variant="primary"
+              className="button"
+              variant="danger"
               onClick={() => this.setState({ areYouSure: true })}
             >
               Delete profile
-            </Button>
+            </Button>{' '}
+            {ngo && (
+              <Button
+                className="button"
+                variant="primary"
+                onClick={() => this.giveUpNgo()}
+                disabled={!password}
+              >
+                Give up NGO.
+              </Button>
+            )}
             <p>
               {' '}
               * By deleting your profile you give up any right to receive

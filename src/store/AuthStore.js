@@ -39,6 +39,12 @@ class AuthStore {
     const res = await sessionPromise;
     this.reset();
   };
+  giveUpNgo = async params => {
+    const sessionPromise = this.store.api.new_volunteer.giveUpNgo(params);
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return res;
+  };
   getNGOProfile = async params => {
     const sessionPromise = this.store.api.new_ngo.getProfile(params);
     this.sessionStatus = fromPromise(sessionPromise);
