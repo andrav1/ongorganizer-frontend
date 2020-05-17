@@ -21,8 +21,8 @@ class Register extends Component {
     name: '',
     location: '',
     participant_number: '',
-    food_ensured: '',
-    accommodation_ensured: '',
+    food_ensured: false,
+    accommodation_ensured: false,
     start_date: '',
     end_date: '',
     application_deadline: '',
@@ -32,13 +32,15 @@ class Register extends Component {
     projects: [],
     showMap: false,
     current_location: '',
+    add: false,
     price_min: 0,
     period: Infinity,
     participant_min: 0,
     participant_max: Infinity,
     price_max: Infinity,
-
+    see_participants: false,
     open: true,
+    display_participants: [],
     error: {},
   };
   async componentDidMount() {
@@ -49,9 +51,14 @@ class Register extends Component {
   }
   handleChange(event) {
     const {
-      target: { value, name },
+      target: { value, name, checked, type },
     } = event;
 
+    if (type === 'checkbox') {
+      return this.setState({
+        [name]: checked,
+      });
+    }
     return this.setState({
       [name]: value,
     });
@@ -63,7 +70,43 @@ class Register extends Component {
     window.location.reload();
     return this.props.history.push('/project');
   }
+  async handleSubmitForm(event) {
+    try {
+      event.preventDefault();
+      const { store } = this.props;
 
+      await store.projectStore.addProject(this.state);
+      this.setState({ add: false });
+      window.location.reload();
+
+      return this.props.history.push('/project');
+    } catch (error) {
+      document.getElementById('add-project').reset();
+      console.log(error);
+      this.setState({
+        error: error.response.data,
+      });
+      window.scrollTo(0, 0);
+
+      setTimeout(() => this.setState({ error: {} }), 3000);
+    }
+  }
+  async applyToProject(id) {
+    const { store } = this.props;
+    await store.projectStore.apply(id);
+
+    return this.props.history.push('/my_projects');
+  }
+  async seeParticipants(id) {
+    const { store } = this.props;
+    const participants = await store.projectStore.getAllParticipants({ id });
+    console.log(participants);
+    this.setState({
+      see_participants: true,
+      display_participants: participants,
+    });
+    console.log(this.state);
+  }
   render() {
     const {
       id,
@@ -72,12 +115,15 @@ class Register extends Component {
       participant_number,
       food_ensured,
       accommodation_ensured,
+      display_participants,
       start_date,
       end_date,
       application_deadline,
       participation_fee,
       description,
       projects,
+      see_participants,
+      add,
       areYouSure,
       period,
       showMap,
@@ -91,7 +137,7 @@ class Register extends Component {
     } = this.state;
     console.log(projects);
     return (
-      <div className="auth-wrapper">
+      <div className="wrapper">
         <div className="filter-div">
           <DropdownButton
             className="filter"
@@ -259,7 +305,32 @@ class Register extends Component {
               This year
             </Dropdown.Item>
           </DropdownButton>{' '}
+          {localStorage.getItem('role') === 'ngo' && (
+            <Button
+              className="filter"
+              variant="success"
+              onClick={() => this.setState({ add: true })}
+            >
+              ADD Project
+            </Button>
+          )}
         </div>
+        <Modal
+          show={see_participants}
+          onHide={() =>
+            this.setState({ see_participants: false, display_participants: [] })
+          }
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Participants</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {display_participants.map(participant => (
+              <p>{participant.name}</p>
+            ))}
+          </Modal.Body>
+          <Modal.Footer></Modal.Footer>
+        </Modal>
         <Modal
           show={areYouSure}
           onHide={() => this.setState({ areYouSure: false })}
@@ -299,10 +370,137 @@ class Register extends Component {
             </Button>
           </Modal.Footer>
         </Modal>
+        <Modal show={add} onHide={() => this.setState({ add: false })}>
+          <Modal.Header closeButton>
+            <Modal.Title>Add Project</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form
+              id="add-project"
+              onSubmit={event => this.handleSubmitForm(event)}
+            >
+              <Form.Group controlId="exampleForm.ControlInput1">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={name}
+                  placeholder="Project name"
+                  onChange={event => this.handleChange(event)}
+                  name="name"
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput2">
+                <Form.Label>Location</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={location}
+                  placeholder="Project location"
+                  onChange={event => this.handleChange(event)}
+                  name="location"
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput3">
+                <Form.Label>Capacity</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={participant_number}
+                  placeholder="How many people can participate?"
+                  onChange={event => this.handleChange(event)}
+                  name="participant_number"
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="formBasicCheckbox">
+                <Form.Check
+                  type="checkbox"
+                  label="Food ensured"
+                  checked={food_ensured}
+                  name="food_ensured"
+                  onChange={event => this.handleChange(event)}
+                />
+              </Form.Group>
+              <Form.Group controlId="formBasicCheckbox1">
+                <Form.Check
+                  type="checkbox"
+                  label="Accommodation ensured"
+                  checked={accommodation_ensured}
+                  name="accommodation_ensured"
+                  onChange={event => this.handleChange(event)}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="exampleForm.ControlInput5">
+                <Form.Label>Start Date</Form.Label>
+                <Form.Control
+                  type="datetime-local"
+                  value={start_date}
+                  name="start_date"
+                  placeholder="zz/ll/aaaa hh:mm AM/PM"
+                  onChange={event => this.handleChange(event)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput6">
+                <Form.Label>End Date</Form.Label>
+                <Form.Control
+                  type="datetime-local"
+                  value={end_date}
+                  name="end_date"
+                  placeholder="zz/ll/aaaa hh:mm AM/PM"
+                  onChange={event => this.handleChange(event)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput7">
+                <Form.Label>Application deadline</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={application_deadline}
+                  name="application_deadline"
+                  placeholder="zz/ll/aaaa"
+                  onChange={event => this.handleChange(event)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput8">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={description}
+                  placeholder="Project description"
+                  onChange={event => this.handleChange(event)}
+                  name="description"
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput9">
+                <Form.Label>Participation Fee</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={participation_fee}
+                  placeholder="Participation fee (in EUR)"
+                  onChange={event => this.handleChange(event)}
+                  name="participation_fee"
+                  required
+                />
+              </Form.Group>
+              <Button variant="success" type="submit">
+                Add
+              </Button>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            {error.non_field_errors && (
+              <Alert variant="danger">{error.non_field_errors[0]}</Alert>
+            )}
+          </Modal.Footer>
+        </Modal>
         {error.non_field_errors && (
           <Alert variant="danger">{error.non_field_errors[0]}</Alert>
         )}
-        <div className="auth-inner">
+        <div className="wraper-inner">
           {projects && projects.length === 0 ? (
             <Jumbotron>
               <h1>Hello!</h1>
@@ -376,7 +574,7 @@ class Register extends Component {
                         '(ddd) DD-MM-YYYY hh:mm'
                       )}
                     </p>
-                    {localStorage.getItem('role') === 'ngo' && (
+                    {localStorage.getItem('role') === 'ngo' && open && (
                       <Button
                         variant="danger"
                         onClick={() =>
@@ -384,6 +582,22 @@ class Register extends Component {
                         }
                       >
                         Delete Project
+                      </Button>
+                    )}
+                    {localStorage.getItem('role') === 'volunteer' && open && (
+                      <Button
+                        variant="success"
+                        onClick={() => this.applyToProject(project.id)}
+                      >
+                        Apply
+                      </Button>
+                    )}{' '}
+                    {localStorage.getItem('role') === 'ngo' && (
+                      <Button
+                        variant="primary"
+                        onClick={() => this.seeParticipants(project.id)}
+                      >
+                        See participants
                       </Button>
                     )}
                   </Jumbotron>

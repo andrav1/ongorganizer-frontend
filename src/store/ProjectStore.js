@@ -23,6 +23,24 @@ class ProjectStore {
     const res = await sessionPromise;
     return this.handleGet(res.data);
   };
+  getAllParticipants = async params => {
+    const sessionPromise = this.store.api.getAll({
+      ...params,
+      url: `/api/get_participants?id=${params.id}`,
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return this.handleGet(res.data);
+  };
+  getApplications = async params => {
+    const sessionPromise = this.store.api.getAll({
+      ...params,
+      url: '/api/project_application/',
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return this.handleGet(res.data);
+  };
   getApp = async id => {
     const sessionPromise = this.store.api.project.getApp({
       id,
@@ -40,6 +58,35 @@ class ProjectStore {
     this.sessionStatus = fromPromise(sessionPromise);
     const res = await sessionPromise;
     this.reset();
+  };
+  addProject = async params => {
+    const sessionPromise = this.store.api.project.addProject(params);
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+  };
+  apply = async id => {
+    console.log(id);
+    const sessionPromise = this.store.api.project.apply(id);
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+  };
+  accept = async id => {
+    const sessionPromise = this.store.api.accept({
+      id,
+      url: `/api/project_application/${id}/`,
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return res.data;
+  };
+  refuse = async id => {
+    const sessionPromise = this.store.api.refuse({
+      id,
+      url: `/api/project_application/${id}/`,
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return res.data;
   };
 }
 

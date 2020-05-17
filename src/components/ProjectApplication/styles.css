@@ -30,12 +30,15 @@
   line-height: 1;
   padding-bottom: 20px;
 }
-.filter {
-  margin:15px;
-  width: 150px;
+.table{
+  margin: 20px;
 }
-.filter-div {
-  margin: auto;
-  width: 75%;
-  border: 3px solid rgb(157, 160, 206);
-  padding: 10px;}
+.accepted{
+  background-color: rgb(140, 196, 140);
+}
+.declined{
+  background-color: rgb(182, 96, 96);
+}
+.pending{
+  background-color: rgb(163, 163, 163);
+}

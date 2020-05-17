@@ -7,6 +7,7 @@ class AuthStore {
     this.store = store;
     extendObservable(this, {
       token: new Cookie('token'),
+      role: new Cookie('role'),
     });
   }
 
@@ -17,6 +18,13 @@ class AuthStore {
   // Computed
   get isLoggedIn() {
     return Boolean(this.token.get());
+  }
+
+  get isVolunteer() {
+    return this.role.get() === 'volunteer';
+  }
+  get isNgo() {
+    return this.role.get() === 'ngo';
   }
 
   // Actions
@@ -80,7 +88,9 @@ class AuthStore {
     const sessionPromise = this.store.api.user.getCurrentUser(params);
     this.sessionStatus = fromPromise(sessionPromise);
     const res = await sessionPromise;
+    this.setRole(res.data.role);
     localStorage.setItem('role', res.data.role);
+    localStorage.setItem('ngo', res.data.id);
   };
   login = async params => {
     const sessionPromise = this.store.api.user.login(params);
@@ -94,6 +104,11 @@ class AuthStore {
     console.log(token);
     localStorage.setItem('token', token);
     this.token.set(token, { expires: 7 });
+  };
+
+  setRole = role => {
+    localStorage.setItem('role', role);
+    this.role.set(role, { expires: 7 });
   };
 
   reset = () => {
@@ -110,6 +125,7 @@ decorate(AuthStore, {
   login: action,
   handleAuth: action,
   setToken: action,
+  setRole: action,
   reset: action,
 });
 

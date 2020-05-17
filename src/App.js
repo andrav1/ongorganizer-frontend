@@ -15,6 +15,8 @@ import Dashboard from './components/Dashboard';
 import VoluteerProfile from './components/VolunteerProfile';
 import NGOProfile from './components/NGOProfile';
 import Project from './components/Project';
+import ProjectApplication from './components/ProjectApplication';
+import ReviewApplications from './components/ReviewApplications';
 const store = createStore(config);
 
 class App extends Component {
@@ -36,6 +38,14 @@ class App extends Component {
               />
               <ProtectedRoute path="/ngo_profile" component={NGOProfile} />
               <ProtectedRoute path="/project" component={Project} />
+              <ProtectedRoute
+                path="/my_projects"
+                component={ProjectApplication}
+              />
+              <ProtectedRoute
+                path="/review_applications"
+                component={ReviewApplications}
+              />
             </Switch>
           </div>
         </BrowserRouter>

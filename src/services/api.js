@@ -208,6 +208,36 @@ export default () => {
         // }
       });
     },
+    addProject(params) {
+      return client.request({
+        method: 'post',
+        url: 'api/project/',
+        headers: { Authorization: `Token ${localStorage.token}` },
+        data: {
+          ngo: localStorage.getItem('ngo'),
+          location: params.location,
+          name: params.name,
+          participant_number: params.participant_number,
+          food_ensured: params.food_ensured,
+          accommodation_ensured: params.accommodation_ensured,
+          start_date: params.start_date,
+          end_date: params.end_date,
+          application_deadline: params.application_deadline,
+          participation_fee: params.participation_fee,
+          description: params.description,
+        },
+      });
+    },
+    apply(params) {
+      return client.request({
+        method: 'post',
+        url: 'api/project_application/',
+        headers: { Authorization: `Token ${localStorage.token}` },
+        data: {
+          id: params,
+        },
+      });
+    },
   };
   return {
     getAll,

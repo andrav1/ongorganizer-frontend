@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Navbar as NB, Nav } from 'react-bootstrap';
+import { NavDropdown } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
 import { withStore } from '../helpers';
 
@@ -23,12 +24,25 @@ class Navbar extends Component {
           <Nav className="mr-auto">
             <Nav.Link onClick={() => this.handleLogout()}>Logout</Nav.Link>
             <Nav.Link href="/dashboard">Dashboard</Nav.Link>
-            {localStorage.getItem('role') === 'volunteer' ? (
+            {store.authStore.isVolunteer ? (
               <Nav.Link href="/volunteer_profile">Edit Profile</Nav.Link>
             ) : (
               <Nav.Link href="/ngo_profile">Edit Profile</Nav.Link>
             )}
-            <Nav.Link href="/project">Projects</Nav.Link>
+            <NavDropdown title="Projects" id="basic-nav-dropdown">
+              <NavDropdown.Item href="/project">See projects</NavDropdown.Item>
+
+              {store.authStore.isVolunteer ? (
+                <NavDropdown.Item href="/my_projects">
+                  See my projects
+                </NavDropdown.Item>
+              ) : (
+                <NavDropdown.Item href="/review_applications">
+                  Review Applications
+                </NavDropdown.Item>
+              )}
+              <NavDropdown.Divider />
+            </NavDropdown>
           </Nav>
         )}
       </NB>
