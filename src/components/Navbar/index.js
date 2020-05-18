@@ -23,11 +23,25 @@ class Navbar extends Component {
         ) : (
           <Nav className="mr-auto">
             <Nav.Link onClick={() => this.handleLogout()}>Logout</Nav.Link>
-            <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+
             {store.authStore.isVolunteer ? (
-              <Nav.Link href="/volunteer_profile">Edit Profile</Nav.Link>
+              <>
+                <Nav.Link href="/volunteer_profile">Edit Profile</Nav.Link>
+                <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+              </>
             ) : (
-              <Nav.Link href="/ngo_profile">Edit Profile</Nav.Link>
+              <>
+                <Nav.Link href="/ngo_profile">Edit Profile</Nav.Link>
+                <NavDropdown title="Dashboard" id="basic-nav-dropdown">
+                  <NavDropdown.Item href="/dashboard">
+                    Review new recruits
+                  </NavDropdown.Item>
+                  <NavDropdown.Item href="/volunteers">
+                    See volunteers
+                  </NavDropdown.Item>
+                  <NavDropdown.Divider />
+                </NavDropdown>
+              </>
             )}
             <NavDropdown title="Projects" id="basic-nav-dropdown">
               <NavDropdown.Item href="/project">See projects</NavDropdown.Item>

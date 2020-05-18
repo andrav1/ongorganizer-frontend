@@ -19,6 +19,15 @@ class DashboardStore {
     const res = await sessionPromise;
     return this.handleGet(res.data);
   };
+  getVolunteers = async params => {
+    const sessionPromise = this.store.api.getAll({
+      ...params,
+      url: '/api/get_volunteers/',
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return this.handleGet(res.data);
+  };
   accept = async id => {
     const sessionPromise = this.store.api.accept({
       id,

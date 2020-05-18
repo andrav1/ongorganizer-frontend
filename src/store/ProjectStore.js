@@ -64,11 +64,25 @@ class ProjectStore {
     this.sessionStatus = fromPromise(sessionPromise);
     const res = await sessionPromise;
   };
+  updateProject = async params => {
+    const sessionPromise = this.store.api.project.updateProject(params);
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+  };
   apply = async id => {
     console.log(id);
     const sessionPromise = this.store.api.project.apply(id);
     this.sessionStatus = fromPromise(sessionPromise);
     const res = await sessionPromise;
+  };
+  giveUp = async params => {
+    const sessionPromise = this.store.api.giveUp({
+      id: params.id,
+      url: `/api/project_application/${params.id}/`,
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return res.data;
   };
   accept = async id => {
     const sessionPromise = this.store.api.accept({

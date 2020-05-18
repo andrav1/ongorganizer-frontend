@@ -40,6 +40,8 @@ class Register extends Component {
     price_max: Infinity,
     see_participants: false,
     open: true,
+    update: false,
+    update_id: '',
     display_participants: [],
     error: {},
   };
@@ -91,6 +93,27 @@ class Register extends Component {
       setTimeout(() => this.setState({ error: {} }), 3000);
     }
   }
+  async handleSubmitFormUpdate(event) {
+    try {
+      event.preventDefault();
+      const { store } = this.props;
+
+      await store.projectStore.updateProject(this.state);
+      this.setState({ update: false });
+      window.location.reload();
+
+      return this.props.history.push('/project');
+    } catch (error) {
+      document.getElementById('update-project').reset();
+      console.log(error);
+      this.setState({
+        error: error.response.data,
+      });
+      window.scrollTo(0, 0);
+
+      setTimeout(() => this.setState({ error: {} }), 3000);
+    }
+  }
   async applyToProject(id) {
     const { store } = this.props;
     await store.projectStore.apply(id);
@@ -129,6 +152,8 @@ class Register extends Component {
       showMap,
       price_min,
       price_max,
+      update,
+      update_id,
       open,
       participant_max,
       participant_min,
@@ -330,6 +355,124 @@ class Register extends Component {
             ))}
           </Modal.Body>
           <Modal.Footer></Modal.Footer>
+        </Modal>
+        <Modal show={update} onHide={() => this.setState({ update: false })}>
+          <Modal.Header closeButton>
+            <Modal.Title>Update project informations</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form
+              id="update-project"
+              onSubmit={event => this.handleSubmitFormUpdate(event)}
+            >
+              <Form.Group controlId="exampleForm.ControlInput1">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={name}
+                  placeholder="Project name"
+                  onChange={event => this.handleChange(event)}
+                  name="name"
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput2">
+                <Form.Label>Location</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={location}
+                  placeholder="Project location"
+                  onChange={event => this.handleChange(event)}
+                  name="location"
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput3">
+                <Form.Label>Capacity</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={participant_number}
+                  placeholder="How many people can participate?"
+                  onChange={event => this.handleChange(event)}
+                  name="participant_number"
+                />
+              </Form.Group>
+              <Form.Group controlId="formBasicCheckbox">
+                <Form.Check
+                  type="checkbox"
+                  label="Food ensured"
+                  checked={food_ensured}
+                  name="food_ensured"
+                  onChange={event => this.handleChange(event)}
+                />
+              </Form.Group>
+              <Form.Group controlId="formBasicCheckbox1">
+                <Form.Check
+                  type="checkbox"
+                  label="Accommodation ensured"
+                  checked={accommodation_ensured}
+                  name="accommodation_ensured"
+                  onChange={event => this.handleChange(event)}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="exampleForm.ControlInput5">
+                <Form.Label>Start Date</Form.Label>
+                <Form.Control
+                  type="datetime-local"
+                  value={start_date}
+                  name="start_date"
+                  placeholder="zz/ll/aaaa hh:mm AM/PM"
+                  onChange={event => this.handleChange(event)}
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput6">
+                <Form.Label>End Date</Form.Label>
+                <Form.Control
+                  type="datetime-local"
+                  value={end_date}
+                  name="end_date"
+                  placeholder="zz/ll/aaaa hh:mm AM/PM"
+                  onChange={event => this.handleChange(event)}
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput7">
+                <Form.Label>Application deadline</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={application_deadline}
+                  name="application_deadline"
+                  placeholder="zz/ll/aaaa"
+                  onChange={event => this.handleChange(event)}
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput8">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={description}
+                  placeholder="Project description"
+                  onChange={event => this.handleChange(event)}
+                  name="description"
+                />
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlInput9">
+                <Form.Label>Participation Fee</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={participation_fee}
+                  placeholder="Participation fee (in EUR)"
+                  onChange={event => this.handleChange(event)}
+                  name="participation_fee"
+                />
+              </Form.Group>
+              <Button variant="success" type="submit">
+                Update
+              </Button>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            Be aware that the capacity of the project can not be reduced in
+            order to avoid complications.
+          </Modal.Footer>
         </Modal>
         <Modal
           show={areYouSure}
@@ -574,32 +717,71 @@ class Register extends Component {
                         '(ddd) DD-MM-YYYY hh:mm'
                       )}
                     </p>
-                    {localStorage.getItem('role') === 'ngo' && open && (
-                      <Button
-                        variant="danger"
-                        onClick={() =>
-                          this.setState({ areYouSure: true, id: project.id })
-                        }
-                      >
-                        Delete Project
-                      </Button>
-                    )}
-                    {localStorage.getItem('role') === 'volunteer' && open && (
-                      <Button
-                        variant="success"
-                        onClick={() => this.applyToProject(project.id)}
-                      >
-                        Apply
-                      </Button>
-                    )}{' '}
-                    {localStorage.getItem('role') === 'ngo' && (
-                      <Button
-                        variant="primary"
-                        onClick={() => this.seeParticipants(project.id)}
-                      >
-                        See participants
-                      </Button>
-                    )}
+                    <>
+                      {localStorage.getItem('role') === 'ngo' && open && (
+                        <Button
+                          variant="danger"
+                          onClick={() =>
+                            this.setState({ areYouSure: true, id: project.id })
+                          }
+                        >
+                          Delete Project
+                        </Button>
+                      )}
+                      {localStorage.getItem('role') === 'volunteer' &&
+                        open && (
+                          <Button
+                            variant="success"
+                            onClick={() => this.applyToProject(project.id)}
+                          >
+                            Apply
+                          </Button>
+                        )}{' '}
+                      {localStorage.getItem('role') === 'ngo' && (
+                        <Button
+                          variant="primary"
+                          onClick={() => this.seeParticipants(project.id)}
+                        >
+                          See participants
+                        </Button>
+                      )}{' '}
+                      {localStorage.getItem('role') === 'ngo' && (
+                        <Button
+                          variant="primary"
+                          className="margin"
+                          onClick={() => {
+                            console.log(
+                              project.start_date,
+                              project.end_date,
+                              project.application_deadline
+                            );
+                            this.setState({
+                              update: true,
+                              update_id: project.id,
+                              name: project.name,
+                              location: project.location,
+                              participant_number: project.participant_number,
+                              food_ensured: project.food_ensured,
+                              accommodation_ensured:
+                                project.accommodation_ensured,
+                              start_date: moment(project.start_date).format(
+                                'YYYY-MM-DDThh:mm'
+                              ),
+                              end_date: moment(project.start_date).format(
+                                'YYYY-MM-DDThh:mm'
+                              ),
+                              application_deadline: moment(
+                                project.application_deadline
+                              ).format('YYYY-MM-DD'),
+                              participation_fee: project.participation_fee,
+                              description: project.description,
+                            });
+                          }}
+                        >
+                          Update project details
+                        </Button>
+                      )}
+                    </>
                   </Jumbotron>
                 );
               })

@@ -16,7 +16,14 @@
   border-radius: 15px;
   transition: all 0.3s;
 }
-
+hr {
+  border: 0;
+  clear:both;
+  display:block;
+  width: 96%;               
+  background-color:black;
+  height: 1px;
+}
 .wrapper .form-control:focus {
   border-color: #167bff;
   box-shadow: none;
@@ -41,9 +48,4 @@
 }
 .pending{
   background-color: rgb(163, 163, 163);
-}
-.sm{
-  width: 45px;
-  height: 30px;
-  border-radius: 25px;
 }
