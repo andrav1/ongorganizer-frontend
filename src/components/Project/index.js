@@ -6,6 +6,7 @@ import {
   Modal,
   Jumbotron,
   Dropdown,
+  Image,
   DropdownButton,
   ButtonGroup,
 } from 'react-bootstrap';
@@ -117,7 +118,6 @@ class Register extends Component {
   async applyToProject(id) {
     const { store } = this.props;
     await store.projectStore.apply(id);
-
     return this.props.history.push('/my_projects');
   }
   async seeParticipants(id) {

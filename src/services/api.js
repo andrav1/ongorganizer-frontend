@@ -26,6 +26,25 @@ export default () => {
       },
     });
   };
+  const forgot_password = params => {
+    return client.request({
+      method: 'post',
+      url: 'forgot_password/',
+      data: {
+        email: params.username,
+      },
+    });
+  };
+  const change_password = params => {
+    return client.request({
+      method: 'post',
+      url: 'forgot_password/',
+      data: {
+        password: params.password,
+        token: params.token,
+      },
+    });
+  };
   const giveUp = params => {
     return client.request({
       method: 'delete',
@@ -268,6 +287,17 @@ export default () => {
         },
       });
     },
+    sendFeedback(params) {
+      console.log(params);
+      return client.request({
+        method: 'post',
+        url: 'api/answer/',
+        headers: { Authorization: `Token ${localStorage.token}` },
+        data: {
+          answers: params,
+        },
+      });
+    },
   };
   return {
     getAll,
@@ -276,8 +306,10 @@ export default () => {
     new_volunteer,
     project,
     accept,
+    forgot_password,
     refuse,
     giveUp,
+    change_password,
     apply,
   };
 };

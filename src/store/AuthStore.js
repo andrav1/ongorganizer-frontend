@@ -116,8 +116,19 @@ class AuthStore {
     this.token.remove();
     this.sessionStatus = null;
   };
+  forgot_password = async params => {
+    const sessionPromise = this.store.api.forgot_password(params);
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return res;
+  };
+  change_password = async params => {
+    const sessionPromise = this.store.api.change_password(params);
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return res;
+  };
 }
-
 decorate(AuthStore, {
   sessionStatus: observable,
   isLoggedIn: computed,

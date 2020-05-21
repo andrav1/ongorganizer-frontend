@@ -1,14 +1,22 @@
 import React, { Component } from 'react';
 import { Navbar as NB, Nav } from 'react-bootstrap';
-import { NavDropdown } from 'react-bootstrap';
+import { NavDropdown, Badge } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
 import { withStore } from '../helpers';
 
 class Navbar extends Component {
+  state = {
+    uncompleted_feedbacks: 0,
+  };
   async handleLogout() {
     const { store } = this.props;
     await store.authStore.reset();
     return this.props.history.push('/');
+  }
+  async componentDidMount() {
+    const { store } = this.props;
+    const feedback_nr = await store.projectStore.getFeedback();
+    this.setState({ uncompleted_feedbacks: feedback_nr.length });
   }
   render() {
     const { store } = this.props;
@@ -27,7 +35,14 @@ class Navbar extends Component {
             {store.authStore.isVolunteer ? (
               <>
                 <Nav.Link href="/volunteer_profile">Edit Profile</Nav.Link>
-                <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+                <Nav.Link href="/dashboard">See NGOs</Nav.Link>
+                <Nav.Link href="/feedback">
+                  Uncompleted Feedbacks{' '}
+                  <Badge variant="danger">
+                    {this.state.uncompleted_feedbacks}
+                  </Badge>
+                  <span className="sr-only">unread messages</span>
+                </Nav.Link>
               </>
             ) : (
               <>
