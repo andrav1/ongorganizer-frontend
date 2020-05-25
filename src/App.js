@@ -20,6 +20,7 @@ import ReviewApplications from './components/ReviewApplications';
 import SeeVolunteers from './components/SeeVolunteers';
 import ChangePassword from './components/ChangePassword';
 import CompleteFeedback from './components/CompleteFeedback';
+import FeedbackStatistics from './components/FeedbackStatistics';
 
 const store = createStore(config);
 
@@ -53,6 +54,10 @@ class App extends Component {
               <ProtectedRoute path="/volunteers" component={SeeVolunteers} />
               <Route path="/change_password" component={ChangePassword} />
               <ProtectedRoute path="/feedback" component={CompleteFeedback} />
+              <ProtectedRoute
+                path="/feedback_statistics"
+                component={FeedbackStatistics}
+              />
             </Switch>
           </div>
         </BrowserRouter>

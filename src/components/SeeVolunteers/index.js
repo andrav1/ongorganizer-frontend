@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Table } from 'react-bootstrap';
+import { Card, Accordion } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { yesno } from '../utils/constants';
 import './styles.css';
 import { withStore } from '../helpers';
 import moment from 'moment';
 
-class Register extends Component {
+class SeeVolunteers extends Component {
   state = {
     volunteers: [],
   };
@@ -20,11 +20,20 @@ class Register extends Component {
   mapToList(volunteers) {
     return volunteers.map(vol => (
       <>
-        <h3>{vol.name}</h3>
+        {/* <h3>{vol.name}</h3>
         <p>Contact: {vol.user.email}</p>
         <div id="line">
           <hr />
-        </div>
+        </div> */}
+        <Card>
+          <Card.Header></Card.Header>
+          <Accordion.Collapse eventKey="0">
+            <Card.Body>
+              <b>{vol.name}</b>
+              <small> -------> Contact: {vol.user.email}</small>
+            </Card.Body>
+          </Accordion.Collapse>
+        </Card>
       </>
     ));
   }
@@ -32,7 +41,13 @@ class Register extends Component {
   render() {
     const { volunteers } = this.state;
 
-    return <div className="wrapper">{this.mapToList(volunteers)}</div>;
+    return (
+      <div className="wrapper">
+        <Accordion defaultActiveKey="0">
+          {this.mapToList(volunteers)}{' '}
+        </Accordion>
+      </div>
+    );
   }
 }
-export default withStore(Register);
+export default withStore(SeeVolunteers);

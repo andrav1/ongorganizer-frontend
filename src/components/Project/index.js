@@ -16,7 +16,7 @@ import './styles.css';
 import { withStore } from '../helpers';
 import moment from 'moment';
 import Map from '../Map';
-class Register extends Component {
+class Project extends Component {
   state = {
     id: '',
     name: '',
@@ -66,7 +66,9 @@ class Register extends Component {
       [name]: value,
     });
   }
-
+  seeFeedback(id) {
+    return this.props.history.push(`/feedback_statistics/?id=${id}`);
+  }
   async deleteProject(id) {
     const { store } = this.props;
     await store.projectStore.deleteProject(id);
@@ -781,6 +783,14 @@ class Register extends Component {
                           Update project details
                         </Button>
                       )}
+                      {localStorage.getItem('role') === 'ngo' && (
+                        <Button
+                          variant="primary"
+                          onClick={() => this.seeFeedback(project.id)}
+                        >
+                          See feedback statistics
+                        </Button>
+                      )}{' '}
                     </>
                   </Jumbotron>
                 );
@@ -792,4 +802,4 @@ class Register extends Component {
   }
 }
 
-export default withStore(Register);
+export default withStore(Project);

@@ -50,6 +50,24 @@ class ProjectStore {
     const res = await sessionPromise;
     return this.handleGet(res.data);
   };
+  getProject = async params => {
+    const sessionPromise = this.store.api.getAll({
+      ...params,
+      url: `/api/project/${params.id}`,
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return this.handleGet(res.data);
+  };
+  getAnswers = async params => {
+    const sessionPromise = this.store.api.getAll({
+      ...params,
+      url: `/api/statistics/?id=${params.id}`,
+    });
+    this.sessionStatus = fromPromise(sessionPromise);
+    const res = await sessionPromise;
+    return this.handleGet(res.data);
+  };
   sendFeedback = async params => {
     const sessionPromise = this.store.api.project.sendFeedback(params);
     this.sessionStatus = fromPromise(sessionPromise);

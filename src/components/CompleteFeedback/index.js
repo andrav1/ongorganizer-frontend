@@ -4,7 +4,7 @@ import { Alert, Button, Modal, Jumbotron, Form } from 'react-bootstrap';
 import './styles.css';
 import { withStore } from '../helpers';
 
-class Login extends Component {
+class CompleteFeedback extends Component {
   state = {
     questions: [],
     answers: {},
@@ -109,6 +109,7 @@ class Login extends Component {
                       name={question.id}
                       placeholder="Enter your answer here..."
                       onChange={event => this.handleChange(event)}
+                      required
                     />
                   </Form.Group>
                 )
@@ -124,4 +125,4 @@ class Login extends Component {
   }
 }
 
-export default withStore(Login);
+export default withStore(CompleteFeedback);

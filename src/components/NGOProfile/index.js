@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import './styles.css';
 import { withStore } from '../helpers';
 
-class Register extends Component {
+class NGOProfile extends Component {
   state = {
     name: '',
     email: '',
@@ -252,4 +252,4 @@ class Register extends Component {
   }
 }
 
-export default withStore(Register);
+export default withStore(NGOProfile);

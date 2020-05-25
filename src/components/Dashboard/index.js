@@ -6,7 +6,7 @@ import './styles.css';
 import { withStore } from '../helpers';
 import { activityDomain, gender } from '../utils/constants';
 
-class Register extends Component {
+class Dashboard extends Component {
   state = {
     entities: [],
   };
@@ -114,4 +114,4 @@ class Register extends Component {
   }
 }
 
-export default withStore(Register);
+export default withStore(Dashboard);

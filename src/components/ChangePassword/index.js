@@ -4,7 +4,7 @@ import { Alert, Button, Modal, Form } from 'react-bootstrap';
 import './styles.css';
 import { withStore } from '../helpers';
 
-class Login extends Component {
+class ChangePassword extends Component {
   state = {
     username: '',
     token: '',
@@ -76,4 +76,4 @@ class Login extends Component {
   }
 }
 
-export default withStore(Login);
+export default withStore(ChangePassword);

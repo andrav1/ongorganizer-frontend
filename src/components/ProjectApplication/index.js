@@ -6,7 +6,7 @@ import './styles.css';
 import { withStore } from '../helpers';
 import moment from 'moment';
 
-class Register extends Component {
+class ProjectApplication extends Component {
   state = {
     applications: [],
     id: 0,
@@ -170,4 +170,4 @@ class Register extends Component {
     );
   }
 }
-export default withStore(Register);
+export default withStore(ProjectApplication);

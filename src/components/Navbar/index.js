@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Navbar as NB, Nav } from 'react-bootstrap';
-import { NavDropdown, Badge } from 'react-bootstrap';
+import { NavDropdown, Badge, Image } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
 import { withStore } from '../helpers';
+import image from '../../assets/images/logo.png';
 
 class Navbar extends Component {
   state = {
@@ -22,8 +23,11 @@ class Navbar extends Component {
     const { store } = this.props;
 
     return (
-      <NB bg="dark" variant="dark">
-        <NB.Brand href="/">NGO ORGANIZER</NB.Brand>
+      <NB bg="secondary" variant="dark">
+        <NB.Brand href="/">
+          <Image style={{ width: 35, height: 35 }} src={image} roundedCircle />
+          NGO ORGANIZER
+        </NB.Brand>
         {!store.authStore.isLoggedIn ? (
           <Nav className="mr-auto" inline>
             <Nav.Link href="/login">Login</Nav.Link>

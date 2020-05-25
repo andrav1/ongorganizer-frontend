@@ -5,7 +5,7 @@ import { Form, Button, Alert, Col, Row, Image, Modal } from 'react-bootstrap';
 import './styles.css';
 import { withStore } from '../helpers';
 
-class Register extends Component {
+class VolunteerProfile extends Component {
   state = {
     name: '',
     email: '',
@@ -329,4 +329,4 @@ class Register extends Component {
   }
 }
 
-export default withStore(Register);
+export default withStore(VolunteerProfile);
