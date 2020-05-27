@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResponsiveBar } from '@nivo/bar';
-const MyResponsiveBar = ({ data }) => (
+const MyResponsiveBar = ({ data, bottomLabel, leftLabel }) => (
   <ResponsiveBar
     data={data}
     keys={['points']}
@@ -13,7 +13,7 @@ const MyResponsiveBar = ({ data }) => (
         id: 'dots',
         type: 'patternDots',
         background: 'inherit',
-        color: '#38bcb2',
+        color: '#FF7F50',
         size: 4,
         padding: 1,
         stagger: true,
@@ -22,10 +22,24 @@ const MyResponsiveBar = ({ data }) => (
         id: 'lines',
         type: 'patternLines',
         background: 'inherit',
-        color: '#eed312',
+        color: '#FF7F50',
         rotation: -45,
         lineWidth: 6,
         spacing: 10,
+      },
+    ]}
+    fill={[
+      {
+        match: {
+          id: 'fries',
+        },
+        id: 'lines',
+      },
+      {
+        match: {
+          id: 'points',
+        },
+        id: 'dots',
       },
     ]}
     borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
@@ -35,7 +49,7 @@ const MyResponsiveBar = ({ data }) => (
       tickSize: 5,
       tickPadding: 5,
       tickRotation: 0,
-      legend: 'score',
+      legend: bottomLabel,
       legendPosition: 'middle',
       legendOffset: 32,
     }}
@@ -43,7 +57,7 @@ const MyResponsiveBar = ({ data }) => (
       tickSize: 5,
       tickPadding: 5,
       tickRotation: 0,
-      legend: 'participants',
+      legend: leftLabel,
       legendPosition: 'middle',
       legendOffset: -40,
     }}

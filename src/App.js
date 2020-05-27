@@ -21,6 +21,7 @@ import SeeVolunteers from './components/SeeVolunteers';
 import ChangePassword from './components/ChangePassword';
 import CompleteFeedback from './components/CompleteFeedback';
 import FeedbackStatistics from './components/FeedbackStatistics';
+import GeneralStatistics from './components/GeneralStatistics';
 
 const store = createStore(config);
 
@@ -57,6 +58,10 @@ class App extends Component {
               <ProtectedRoute
                 path="/feedback_statistics"
                 component={FeedbackStatistics}
+              />
+              <ProtectedRoute
+                path="/statistics"
+                component={GeneralStatistics}
               />
             </Switch>
           </div>

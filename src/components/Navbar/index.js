@@ -76,6 +76,9 @@ class Navbar extends Component {
               )}
               <NavDropdown.Divider />
             </NavDropdown>
+            {store.authStore.isNgo && (
+              <Nav.Link href="/statistics">General statistics</Nav.Link>
+            )}
           </Nav>
         )}
       </NB>

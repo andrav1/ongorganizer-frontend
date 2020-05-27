@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Jumbotron, Card, Col, Row } from 'react-bootstrap';
+import { Container, Button, Jumbotron, Card, Col, Row } from 'react-bootstrap';
 import './styles.css';
 import { withStore } from '../helpers';
 import ResponsiveBar from '../Statistics/responsivebar';
 import ResponsivePie from '../Statistics/piechart';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+
 class FeedbackStatistics extends Component {
   state = {
     questions: [],
@@ -60,12 +63,20 @@ class FeedbackStatistics extends Component {
       return sum / total;
     }
   }
+  async downloadPDF(id) {
+    const all = document.getElementById(id);
+
+    const canva = await html2canvas(all);
+    const pdf = new jsPDF();
+    pdf.addImage(canva.toDataURL('image/png'), 'JPEG', 0, 0, 210, 297);
+    pdf.save(`${id}.pdf`);
+  }
   render() {
     const { overall_mean, project, answers, questions } = this.state;
     console.log(overall_mean);
     return (
       <div className="auth-wrapper">
-        <Container>
+        <Container id="feedback_stats">
           <Row>
             <Col>
               <Card style={{ width: '18rem' }}>
@@ -77,6 +88,15 @@ class FeedbackStatistics extends Component {
                     Description: {this.state.project.description}
                   </Card.Text>
                   <Card.Text>Location: {this.state.project.location}</Card.Text>
+                  <Card.Text>
+                    <div>
+                      <Button
+                        onClick={() => this.downloadPDF('feedback_stats')}
+                      >
+                        Export as PDF
+                      </Button>
+                    </div>
+                  </Card.Text>
                 </Card.Body>
               </Card>
             </Col>
@@ -132,6 +152,8 @@ class FeedbackStatistics extends Component {
                 <div style={{ height: 300, width: 500 }}>
                   <ResponsiveBar
                     data={this.mapAnswersToStatistics(answers, 'food')}
+                    bottomLabel="score"
+                    leftLabel="participants"
                   />
                 </div>
               </Col>
@@ -178,6 +200,8 @@ class FeedbackStatistics extends Component {
                 <div style={{ height: 300, width: 500 }}>
                   <ResponsiveBar
                     data={this.mapAnswersToStatistics(answers, 'accommodation')}
+                    bottomLabel="score"
+                    leftLabel="participants"
                   />
                 </div>
               </Col>
@@ -224,6 +248,8 @@ class FeedbackStatistics extends Component {
               <div style={{ height: 300, width: 500 }}>
                 <ResponsiveBar
                   data={this.mapAnswersToStatistics(answers, 'organization')}
+                  bottomLabel="score"
+                  leftLabel="participants"
                 />
               </div>
             </Col>

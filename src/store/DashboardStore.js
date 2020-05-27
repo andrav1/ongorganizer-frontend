@@ -47,7 +47,7 @@ class DashboardStore {
     return res.data;
   };
   apply = async id => {
-    const sessionPromise = this.store.api.refuse({ id, url: '/api/ngo_user/' });
+    const sessionPromise = this.store.api.apply({ id, url: '/api/ngo_user/' });
     this.sessionStatus = fromPromise(sessionPromise);
     const res = await sessionPromise;
     return res.data;
