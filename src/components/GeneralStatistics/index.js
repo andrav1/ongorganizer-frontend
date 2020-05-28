@@ -13,6 +13,9 @@ class Statistics extends Component {
   state = {
     ngo_applications: [],
     ngo: '',
+    projects: [],
+    project_applications: [],
+    top3: [],
   };
   async componentDidMount() {
     const { store } = this.props;
@@ -20,6 +23,93 @@ class Statistics extends Component {
     this.setState({ ngo_applications });
     const ngo = await store.authStore.getNGOProfile();
     this.setState({ ngo });
+    const projects = await store.projectStore.getAll();
+    this.setState({ projects });
+    const project_applications = await store.projectStore.getApplications();
+    this.setState({ project_applications });
+    const top3 = this.state.projects.sort(
+      (a, b) => a.applicants > b.applicants
+    );
+    this.setState({ top3 });
+  }
+  ProjectYearlyView(projects) {
+    return [2019, 2020, 2021, 2022, 2023].map(score => ({
+      score: String(score),
+      points: projects.filter(x => moment(x.start_date).year() === score)
+        .length,
+    }));
+  }
+  ProjectMonthlyView(projects) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months.map((score, index) => ({
+      score: score,
+      points: projects.filter(
+        x =>
+          moment().year() === moment(x.start_date).year() &&
+          moment(x.start_date).month() === index
+      ).length,
+      pointsColor: 'hsl(117, 70%, 50%)',
+    }));
+  }
+  ProjectDailyView(projects) {
+    console.log(projects);
+    return [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+    ].map(score => {
+      return {
+        score: String(score),
+        points: projects.filter(
+          x =>
+            moment().year() === moment(x.start_date).year() &&
+            moment().month() === moment(x.start_date).month() &&
+            moment(x.start_date).date() === score
+        ).length,
+        pointsColor: 'hsl(117, 70%, 50%)',
+      };
+    });
   }
   YearlyView(ngo_applications) {
     return [2019, 2020, 2021, 2022, 2023].map(score => ({
@@ -44,12 +134,12 @@ class Statistics extends Component {
       'Nov',
       'Dec',
     ];
-    return months.map(score => ({
+    return months.map((score, index) => ({
       score: score,
       points: ngo_applications.filter(
         x =>
           moment().year() === moment(x.date_added).year() &&
-          moment(x.date_added).month() === months.indexOf(score) + 1
+          moment(x.date_added).month() === index
       ).length,
       pointsColor: 'hsl(117, 70%, 50%)',
     }));
@@ -93,39 +183,48 @@ class Statistics extends Component {
         x =>
           moment().year() === moment(x.date_added).year() &&
           moment().month() === moment(x.date_added).month() &&
-          moment(x.date_added).day() === score
+          moment(x.date_added).date() === score
       ).length,
       pointsColor: 'hsl(117, 70%, 50%)',
     }));
   }
   async downloadPDF(id) {
     const all = document.getElementById(id);
-
     const canva = await html2canvas(all);
     const pdf = new jsPDF();
     pdf.addImage(canva.toDataURL('image/png'), 'JPEG', 0, 0, 210, 297);
     pdf.save(`${id}.pdf`);
   }
   render() {
-    const { ngo_applications, ngo } = this.state;
-    console.log(ngo_applications);
+    const {
+      ngo_applications,
+      ngo,
+      top3,
+      project_applications,
+      projects,
+    } = this.state;
+    console.log(project_applications);
     return (
       <div className="auth-wrapper">
-        <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
+        <Tabs defaultActiveKey="home" id="uncontrolled-tab-example">
           <Tab eventKey="home" title="Recruitment statistics">
             <div id="recruitment_stats">
               <Container>
                 <Row style={{ height: 50 }}>
-                  <h2>
-                    Recruitment statistics on {moment().format('DD/MM/yyyy')}
-                  </h2>
-                  <div>
-                    <Button
-                      onClick={() => this.downloadPDF('recruitment_stats')}
-                    >
-                      Export as PDF
-                    </Button>
-                  </div>
+                  <Col>
+                    <h2>
+                      Recruitment statistics on {moment().format('DD/MM/yyyy')}
+                    </h2>
+                  </Col>
+                  <Col>
+                    <div>
+                      <Button
+                        onClick={() => this.downloadPDF('recruitment_stats')}
+                      >
+                        Export as PDF
+                      </Button>
+                    </div>
+                  </Col>
                 </Row>
                 <Row>
                   <Col>
@@ -161,7 +260,7 @@ class Statistics extends Component {
                   <Col>
                     <div
                       id="status_distribution"
-                      style={{ height: 300, width: 400 }}
+                      style={{ height: 300, width: 500 }}
                     >
                       <ResponsivePie
                         data={[
@@ -203,7 +302,7 @@ class Statistics extends Component {
                     <h6>Distribution by gender </h6>
                     <div
                       id="gender_distribution"
-                      style={{ height: 300, width: 400 }}
+                      style={{ height: 300, width: 500 }}
                     >
                       <ResponsivePie
                         data={[
@@ -229,7 +328,7 @@ class Statistics extends Component {
                   </Col>
                   <Col>
                     <h6>Distribution by age </h6>
-                    <div style={{ height: 300, width: 700 }}>
+                    <div style={{ height: 300, width: 500 }}>
                       <ResponsivePie
                         data={[
                           {
@@ -330,7 +429,7 @@ class Statistics extends Component {
                   </Col>
                   <Col>
                     <h6>Distribution by experience </h6>
-                    <div style={{ height: 300, width: 700 }}>
+                    <div style={{ height: 300, width: 500 }}>
                       <ResponsivePie
                         data={[
                           {
@@ -377,7 +476,455 @@ class Statistics extends Component {
           </Tab>
 
           <Tab eventKey="prj" title="Projects statistics">
-            <Container></Container>
+            <div id="projects_stats">
+              <Container>
+                <Row style={{ height: 50 }}>
+                  <Col>
+                    <h2>
+                      Projects statistics on {moment().format('DD/MM/yyyy')}
+                    </h2>
+                  </Col>
+                  <Col>
+                    <div>
+                      <Button
+                        onClick={() => this.downloadPDF('projects_stats')}
+                      >
+                        Export as PDF
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <h5>Project frequency</h5>{' '}
+                </Row>
+                <Row>
+                  <Col>
+                    <h6>5 YEAR PERIOD</h6>
+                    <div style={{ height: 300, width: 500 }}>
+                      <ResponsiveBar
+                        data={this.ProjectYearlyView(projects)}
+                        bottomLabel="year"
+                        leftLabel="projects"
+                      />
+                    </div>
+                  </Col>
+                  <Col>
+                    <h5>Most popular projects</h5>{' '}
+                    {top3 && top3.length !== 0 && (
+                      <>
+                        <h6>
+                          <b>1. </b>
+                          {top3[0].name} with {top3[0].applicants} applicants{' '}
+                          <a href={`/feedback_statistics/?id=${top3[0].id}`}>
+                            <i>See feedback statistics</i>
+                          </a>{' '}
+                        </h6>
+                        <h6>
+                          <b>2. </b>
+                          {top3[1].name} with {top3[1].applicants} applicants{' '}
+                          <a href={`/feedback_statistics/?id=${top3[1].id}`}>
+                            <i>See feedback statistics</i>
+                          </a>{' '}
+                        </h6>
+                        <h6>
+                          <b>3. </b>
+                          {top3[2].name} with {top3[2].applicants} applicants{' '}
+                          <a href={`/feedback_statistics/?id=${top3[2].id}`}>
+                            <i>See feedback statistics</i>
+                          </a>{' '}
+                        </h6>
+                      </>
+                    )}
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <h6>THIS YEAR</h6>
+                    <div style={{ height: 300, width: 800 }}>
+                      <ResponsiveBar
+                        data={this.ProjectMonthlyView(projects)}
+                        bottomLabel="month"
+                        leftLabel="projects"
+                      />
+                    </div>
+                  </Col>
+                  <Col>
+                    <h6>OPEN vs CLOSED PROJECTS</h6>
+                    <div style={{ height: 300, width: 200 }}>
+                      <ResponsivePie
+                        data={[
+                          {
+                            id: 'open',
+                            label: 'open',
+                            value: projects.filter(x => x.open === true).length,
+                            color: 'hsl(127, 70%, 50%)',
+                          },
+                          {
+                            id: 'closed',
+                            label: 'closed',
+                            value: projects.filter(x => x.open === false)
+                              .length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <h6>THIS MONTH</h6>
+                    <div style={{ height: 300, width: 1000 }}>
+                      <ResponsiveBar
+                        data={this.ProjectDailyView(projects)}
+                        bottomLabel="day"
+                        leftLabel="projects"
+                      />
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <h6>Distribution of projects by duration</h6>
+                    <div style={{ height: 300, width: 500 }}>
+                      <ResponsivePie
+                        data={[
+                          {
+                            id: '<1 day',
+                            label: 'less than one day',
+                            value: projects.filter(
+                              x =>
+                                moment(x.start_date).date() ===
+                                moment(x.end_date).date()
+                            ).length,
+                            color: 'hsl(127, 70%, 50%)',
+                          },
+                          {
+                            id: '1-3 days',
+                            label: '1-3 days',
+                            value: projects.filter(
+                              x =>
+                                moment(x.end_date).diff(x.start_date, 'days') >
+                                  0 &&
+                                moment(x.end_date).diff(x.start_date, 'days') <=
+                                  3
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '3-7 days',
+                            label: '3-7 days',
+                            value: projects.filter(
+                              x =>
+                                moment(x.end_date).diff(x.start_date, 'days') >
+                                  3 &&
+                                moment(x.end_date).diff(x.start_date, 'days') <=
+                                  7
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '1-4 weeks',
+                            label: '1-4 weeks',
+                            value: projects.filter(
+                              x =>
+                                moment(x.end_date).diff(x.start_date, 'days') >
+                                  7 &&
+                                moment(x.end_date).diff(x.start_date, 'days') <=
+                                  30
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '> 1 month',
+                            label: 'more than 1 month',
+                            value: projects.filter(
+                              x =>
+                                moment(x.end_date).diff(x.start_date, 'days') >=
+                                31
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Col>
+                  <Col>
+                    <h6>Distribution of projects by price</h6>
+                    <div style={{ height: 300, width: 500 }}>
+                      <ResponsivePie
+                        data={[
+                          {
+                            id: 'free',
+                            label: 'free',
+                            value: projects.filter(
+                              x => x.participation_fee === 0
+                            ).length,
+                            color: 'hsl(127, 70%, 50%)',
+                          },
+                          {
+                            id: '< 10 EUROS',
+                            label: 'under 10 EUROS',
+                            value: projects.filter(
+                              x =>
+                                x.participation_fee > 0 &&
+                                x.participation_fee <= 10
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '10-50 EUROS',
+                            label: '10-50 EUROS',
+                            value: projects.filter(
+                              x =>
+                                x.participation_fee > 10 &&
+                                x.participation_fee <= 50
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '> 50 EUROS',
+                            label: 'over 50 EUROS',
+                            value: projects.filter(
+                              x => x.participation_fee > 50
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Col>{' '}
+                </Row>
+                <Row>
+                  <Col>
+                    <h6>Distribution of projects by offerings</h6>
+                    <div style={{ height: 300, width: 500 }}>
+                      <ResponsivePie
+                        data={[
+                          {
+                            id: 'food',
+                            label: 'just food',
+                            value: projects.filter(
+                              x =>
+                                x.food_ensured === true &&
+                                x.accommodation_ensured === false
+                            ).length,
+                            color: 'hsl(127, 70%, 50%)',
+                          },
+                          {
+                            id: 'accommodation',
+                            label: 'just accommodation',
+                            value: projects.filter(
+                              x =>
+                                x.food_ensured === false &&
+                                x.accommodation_ensured === true
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: 'both',
+                            label: 'both',
+                            value: projects.filter(
+                              x =>
+                                x.food_ensured === true &&
+                                x.accommodation_ensured === true
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: 'none',
+                            label: 'none',
+                            value: projects.filter(
+                              x =>
+                                x.food_ensured === false &&
+                                x.accommodation_ensured === false
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Col>
+                  <Col style={{ width: 200 }}></Col>
+                  <Col>
+                    <h6>Distribution of participants by offerings</h6>
+                    <div style={{ height: 300, width: 500 }}>
+                      <ResponsivePie
+                        data={[
+                          {
+                            id: 'food',
+                            label: 'just food',
+                            value: project_applications.filter(
+                              x =>
+                                x.project.food_ensured === true &&
+                                x.project.accommodation_ensured === false
+                            ).length,
+                            color: 'hsl(127, 70%, 50%)',
+                          },
+                          {
+                            id: 'accommodation',
+                            label: 'just accommodation',
+                            value: project_applications.filter(
+                              x =>
+                                x.project.food_ensured === false &&
+                                x.project.accommodation_ensured === true
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: 'both',
+                            label: 'both',
+                            value: project_applications.filter(
+                              x =>
+                                x.project.food_ensured === true &&
+                                x.project.accommodation_ensured === true
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: 'none',
+                            label: 'none',
+                            value: project_applications.filter(
+                              x =>
+                                x.project.food_ensured === false &&
+                                x.project.accommodation_ensured === false
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <h6>Distribution of participants by price</h6>
+                    <div style={{ height: 300, width: 500 }}>
+                      <ResponsivePie
+                        data={[
+                          {
+                            id: 'free',
+                            label: 'free',
+                            value: project_applications.filter(
+                              x => x.project.participation_fee === 0
+                            ).length,
+                            color: 'hsl(127, 70%, 50%)',
+                          },
+                          {
+                            id: '< 10 EUROS',
+                            label: 'under 10 EUROS',
+                            value: project_applications.filter(
+                              x =>
+                                x.project.participation_fee > 0 &&
+                                x.project.participation_fee <= 10
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '10-50 EUROS',
+                            label: '10-50 EUROS',
+                            value: project_applications.filter(
+                              x =>
+                                x.project.participation_fee > 10 &&
+                                x.project.participation_fee <= 50
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '> 50 EUROS',
+                            label: 'over 50 EUROS',
+                            value: project_applications.filter(
+                              x => x.project.participation_fee > 50
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Col>
+                  <Col style={{ width: 200 }}></Col>
+                  <Col>
+                    <h6>Distribution of participants by duration</h6>
+                    <div style={{ height: 300, width: 500 }}>
+                      <ResponsivePie
+                        data={[
+                          {
+                            id: '<1 day',
+                            label: 'less than one day',
+                            value: project_applications.filter(
+                              x =>
+                                moment(x.project.start_date).date() ===
+                                moment(x.project.end_date).date()
+                            ).length,
+                            color: 'hsl(127, 70%, 50%)',
+                          },
+                          {
+                            id: '1-3 days',
+                            label: '1-3 days',
+                            value: project_applications.filter(
+                              x =>
+                                moment(x.project.end_date).diff(
+                                  x.project.start_date,
+                                  'days'
+                                ) > 0 &&
+                                moment(x.project.end_date).diff(
+                                  x.project.start_date,
+                                  'days'
+                                ) <= 3
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '3-7 days',
+                            label: '3-7 days',
+                            value: project_applications.filter(
+                              x =>
+                                moment(x.project.end_date).diff(
+                                  x.project.start_date,
+                                  'days'
+                                ) > 3 &&
+                                moment(x.project.end_date).diff(
+                                  x.project.start_date,
+                                  'days'
+                                ) <= 7
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '1-4 weeks',
+                            label: '1-4 weeks',
+                            value: project_applications.filter(
+                              x =>
+                                moment(x.project.end_date).diff(
+                                  x.project.start_date,
+                                  'days'
+                                ) > 7 &&
+                                moment(x.project.end_date).diff(
+                                  x.project.start_date,
+                                  'days'
+                                ) <= 30
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                          {
+                            id: '> 1 month',
+                            label: 'more than 1 month',
+                            value: project_applications.filter(
+                              x =>
+                                moment(x.project.end_date).diff(
+                                  x.project.start_date,
+                                  'days'
+                                ) >= 31
+                            ).length,
+                            color: 'hsl(131, 70%, 50%)',
+                          },
+                        ]}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+              </Container>{' '}
+            </div>
           </Tab>
         </Tabs>
       </div>
