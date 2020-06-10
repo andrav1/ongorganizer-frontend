@@ -185,7 +185,7 @@ class Register extends Component {
             <Form.Check
               type="switch"
               id="custom-switch"
-              label="I agree that all of my data will be stored with the possibility to be displayed for the ngo I'm part of. I can request to delete my profile at any point. No third party will have access to my data."
+              label="I agree that all of my data will be stored with the possibility to be displayed for any interested volunteer. I can request to delete my profile at any point. No third party will have access to my data."
               value="True"
               name="gdpr"
               onChange={event => this.handleChange(event)}
